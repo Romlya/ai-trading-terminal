@@ -1,0 +1,84 @@
+*{box-sizing:border-box;margin:0;padding:0}
+html,body,#root{height:100%;width:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;-webkit-tap-highlight-color:transparent}
+.wrap{display:flex;flex-direction:column;height:100%;height:100dvh}
+.header{height:48px;display:flex;align-items:center;padding:0 10px;border-bottom:1px solid;gap:10px;flex-shrink:0}
+.left{display:flex;align-items:center;gap:10px;min-width:0;flex:1;overflow:hidden}
+.sym-block{display:flex;align-items:baseline;gap:8px;flex-shrink:0}
+.sym{font-weight:700;font-size:15px}.prc{font-weight:600;font-size:15px}
+.st{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500}
+.tfs{display:flex;gap:2px;margin-left:4px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tf{border:none;padding:5px 9px;border-radius:6px;font-size:12px;cursor:pointer;font-weight:500;flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;min-height:0}
+@media(min-width:900px){.main{flex-direction:row}}
+.chart-box{flex:1;min-height:38%;display:flex;flex-direction:column;border-bottom:1px solid;min-width:0}
+@media(min-width:900px){.chart-box{border-bottom:none;border-right:1px solid}}
+.toolbar{padding:5px 8px;border-bottom:1px solid;display:flex;gap:4px;flex-wrap:wrap;align-items:center;flex-shrink:0}
+.tb{border:1px solid;padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer;background:transparent;font-weight:500}
+.chart-meta{padding:4px 10px;border-bottom:1px solid;display:flex;justify-content:space-between;align-items:center;font-size:11px;flex-shrink:0;gap:8px}
+.inds{display:flex;gap:4px;flex-wrap:wrap}
+.ind{border:1px solid;padding:3px 8px;border-radius:5px;font-size:10px;cursor:pointer;background:transparent;font-weight:500}
+.mtf-bar{padding:4px 10px;font-size:11px;border-bottom:1px solid;display:flex;gap:10px;flex-wrap:wrap;align-items:center;flex-shrink:0}
+.mtf-chip{padding:2px 8px;border-radius:10px;font-weight:600;font-size:10px}
+.vp{padding:3px 10px;font-size:10px;border-bottom:1px solid;flex-shrink:0;opacity:0.9}
+.chart-wrap{flex:1;position:relative;min-height:140px;overflow:hidden}
+#chart{width:100%;height:100%;position:relative;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+#chart.grabbing{cursor:grabbing}
+#zone-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.price-zoom{position:absolute;right:52px;top:50%;transform:translateY(-50%);z-index:4;display:flex;flex-direction:column;gap:6px}
+.pz-btn{width:32px;height:32px;border-radius:8px;border:1px solid;font-size:18px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;backdrop-filter:blur(6px)}
+.rsi-box{height:56px;border-top:1px solid;flex-shrink:0}#rsi{width:100%;height:100%}
+.chart-msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;text-align:center;font-size:13px;gap:8px;z-index:3}
+.side{flex:1;display:flex;flex-direction:column;min-height:46%;min-width:0}
+@media(min-width:900px){.side{width:360px;flex:none}}
+.tabs{display:flex;border-bottom:1px solid;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch}
+.tab{flex:1;min-width:44px;padding:9px 3px;background:none;border:none;font-size:11px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;font-weight:500}
+.pane{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:8px;-webkit-overflow-scrolling:touch}
+.msg{max-width:92%;padding:9px 12px;border-radius:12px;font-size:13px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
+.msg.me{align-self:flex-end}.msg.bot{align-self:flex-start}
+.quick{display:flex;gap:6px;padding:8px 12px;flex-wrap:wrap;border-bottom:1px solid}
+.qb{border:1px solid;padding:5px 10px;border-radius:14px;font-size:11px;cursor:pointer;background:transparent;font-weight:500}
+.inp{display:flex;gap:8px;padding:10px;border-top:1px solid;flex-shrink:0}
+.inp input{flex:1;border:1px solid;border-radius:10px;padding:11px 12px;font-size:14px;outline:none}
+.inp button{border:none;border-radius:10px;width:44px;font-size:16px;cursor:pointer}
+.dom{flex:1;overflow:hidden;font-size:12px;font-variant-numeric:tabular-nums;display:flex;flex-direction:column}
+.dom-h{display:flex;justify-content:space-between;padding:8px 12px;font-size:11px;border-bottom:1px solid}
+.dom-row{display:flex;justify-content:space-between;padding:3px 12px;position:relative}
+.dom-row .bar{position:absolute;top:0;bottom:0;opacity:.15}.ask .bar{right:0}.bid .bar{left:0}
+.spread{text-align:center;padding:6px;font-size:11px;border-top:1px solid;border-bottom:1px solid;font-weight:500}
+.trade{padding:14px;display:flex;flex-direction:column;gap:11px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.btns{display:flex;gap:8px}.btns button{flex:1;padding:11px;border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer}
+.type{display:flex;gap:6px}.type button{flex:1;padding:8px;border:1px solid;border-radius:6px;background:transparent;font-size:12px;cursor:pointer;font-weight:500}
+.fld label{display:block;font-size:11px;margin-bottom:4px;font-weight:500}
+.fld input{width:100%;border:1px solid;border-radius:8px;padding:10px 12px;font-size:14px;outline:none}
+.qs{display:flex;gap:5px;flex-wrap:wrap}.qs button{padding:6px 10px;border:1px solid;border-radius:6px;background:transparent;font-size:12px;cursor:pointer}
+.place{padding:12px;border:none;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;color:#fff}
+.info{font-size:11px;text-align:center;opacity:.65}
+.pos{border-radius:8px;padding:10px;font-size:12px}.pos div{display:flex;justify-content:space-between;margin-bottom:4px}
+.scr-filters{display:flex;gap:6px;padding:8px 12px;border-bottom:1px solid;flex-wrap:wrap}
+.scr{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.scr-h{display:grid;grid-template-columns:1.3fr 1fr 1fr .8fr;padding:8px 12px;font-size:10px;border-bottom:1px solid;position:sticky;top:0;font-weight:500}
+.scr-r{display:grid;grid-template-columns:1.3fr 1fr 1fr .8fr;padding:10px 12px;border-bottom:1px solid;font-size:13px;cursor:pointer}
+.cl{flex:1;overflow-y:auto;font-size:12px;font-variant-numeric:tabular-nums;-webkit-overflow-scrolling:touch}
+.cl-h{display:grid;grid-template-columns:1fr .7fr .7fr .7fr;padding:8px 12px;font-size:10px;border-bottom:1px solid;position:sticky;top:0;font-weight:500}
+.cl-r{display:grid;grid-template-columns:1fr .7fr .7fr .7fr;padding:5px 12px;border-bottom:1px solid}
+.cl-bar{height:3px;border-radius:2px;margin-top:2px}
+.al{padding:12px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.al-item{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:8px;margin-bottom:6px;font-size:13px}
+.al-item .del{background:none;border:none;font-size:16px;cursor:pointer}
+.wl{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.wl-r{display:flex;justify-content:space-between;align-items:center;padding:11px 12px;border-bottom:1px solid;font-size:13px;cursor:pointer;gap:8px}
+.wl-r .meta{display:flex;flex-direction:column;align-items:flex-end;gap:2px;font-variant-numeric:tabular-nums}
+.wl-add{padding:10px 12px;border-bottom:1px solid;display:flex;gap:8px}
+.wl-add input{flex:1;border:1px solid;border-radius:8px;padding:8px 10px;font-size:13px;outline:none}
+.wl-add button{border:none;border-radius:8px;padding:8px 12px;font-size:12px;cursor:pointer;font-weight:600;color:#fff}
+.search{padding:8px 12px;border-bottom:1px solid}
+.search input{width:100%;border:1px solid;border-radius:8px;padding:9px 12px;font-size:13px;outline:none}
+.th{padding:14px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.th h4{font-size:11px;opacity:.7;margin-bottom:8px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em}
+.th-row{display:flex;gap:8px;flex-wrap:wrap}
+.th-btn{padding:11px 12px;border:2px solid;border-radius:8px;background:transparent;font-size:13px;cursor:pointer;flex:1;min-width:90px;text-align:center;font-weight:500}
+.preview{height:20px;border-radius:4px;margin-top:6px;display:flex;overflow:hidden}.preview span{flex:1}
+.lvls{flex:1;overflow-y:auto;padding:10px;font-size:12px;-webkit-overflow-scrolling:touch}
+.lvl-item{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:8px;margin-bottom:6px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid}
