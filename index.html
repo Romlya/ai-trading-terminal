@@ -2,16 +2,29 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>AI Trading Terminal</title>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
-<link rel="stylesheet" href="/styles.css"/>
+<style>
+body{margin:0;background:#0a0a0f;color:#e5e7eb;font-family:system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{max-width:420px;background:#12121a;border:1px solid #2d2d3f;border-radius:16px;padding:28px}
+h1{font-size:20px;margin:0 0 12px}
+a{color:#a78bfa}
+ol{padding-left:18px;line-height:1.6;opacity:.9;font-size:14px}
+.btn{display:inline-block;margin-top:16px;background:#7c3aed;color:#fff;text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:600}
+.note{margin-top:16px;font-size:12px;opacity:.6}
+</style>
 </head>
 <body>
-<div id="root"></div>
-<script type="text/babel" src="/app.jsx"></script>
+<div class="card">
+  <h1>AI Trading Terminal</h1>
+  <p>Полный UI сейчас на Vercel (claimed project).</p>
+  <a class="btn" href="https://temporary-brisk-boron-9iooscz.vercel.app">Открыть терминал →</a>
+  <ol>
+    <li>Theme → API Key / Secret, Testnet ON</li>
+    <li>«Проверить аккаунт»</li>
+    <li>Trade → Live ON → ордер</li>
+  </ol>
+  <p class="note">Репозиторий: github.com/Romlya/ai-trading-terminal · Backend: api/binance.js</p>
+</div>
 </body>
 </html>
