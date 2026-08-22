@@ -1,1 +1,1 @@
-PLACEHOLDER_WILL_REPLACE
+const {useState,useEffect,useRef}=React; const REST=['https://data-api.binance.vision','https://api.binance.com','https://api1.binance.com','https://api2.binance.com']; const WS=['wss://data-stream.binance.vision','wss://stream.binance.com:9443']; // FULL CONTENT PLACEHOLDER - will fix with proper push
