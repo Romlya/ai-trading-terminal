@@ -1,26 +1,29 @@
 # AI Trading Terminal
 
-Торговый терминал: графики, SMC structure, DOM, clusters, screener, AI-ассистент, Binance REST/WS + signed order proxy.
+## Рабочий UI (production)
+https://temporary-brisk-boron-9iooscz.vercel.app
 
-## Структура
+## Возможности
+- График Binance (klines + WS), ТФ, темы свечей
+- SMC structure (BOS/CHoCH, FVG, OB) на canvas
+- DOM, clusters, screener, watchlist, alerts
+- AI-панель (setup / mtf / структура)
+- **Live Trade**: Theme → API keys → Trade → Live ON
 
-- `index.html` — фронтенд
-- `api/binance.js` — Vercel serverless (подпись ордеров Binance)
-- `package.json` / `vercel.json` — деплой
+## Backend
+`api/binance.js` — Vercel serverless, HMAC SHA256, testnet/mainnet.
+Ключи только в localStorage, не на сервере.
 
-## Деплой на Vercel
+## Как торговать (testnet)
+1. https://testnet.binance.vision → API Management → создать ключ
+2. Theme → вставить Key/Secret, Testnet ON → «Проверить аккаунт»
+3. Trade → Live ON → Market/Limit
 
-1. Import Git repo в Vercel
-2. Deploy → static + `/api/binance`
-3. Каждый push в `main` обновляет production
+## Структура репо
+- `index.html` — фронт (полный UI деплоится на Vercel)
+- `api/binance.js` — proxy ордеров
+- `styles.css` / `app.jsx` — разбиение (в работе)
+- `package.json` / `vercel.json`
 
-## API keys
-
-Вкладка **Theme** → API Key + Secret (только localStorage).
-Тесты: [Binance Testnet](https://testnet.binance.vision) → API Management.
-
-## Live trading
-
-1. Theme → ключи + Testnet ON
-2. Проверить аккаунт
-3. Trade → Live ON → ордера через `/api/binance`
+## Git → Vercel
+Подключи репозиторий в Settings → Git проекта Vercel для авто-деплоя с `main`.
