@@ -15,9 +15,10 @@
 <script>
 (async function(){
   try {
-    var a = await fetch('/app.p1.txt').then(function(r){ if(!r.ok) throw new Error('p1'); return r.text(); });
-    var b = await fetch('/app.p2.txt').then(function(r){ if(!r.ok) throw new Error('p2'); return r.text(); });
-    var code = Babel.transform(a+b, { presets: ['react'] }).code;
+    var parts = await Promise.all([1,2,3].map(function(i){
+      return fetch('/app.p'+i+'.txt').then(function(r){ if(!r.ok) throw new Error('p'+i+' '+r.status); return r.text(); });
+    }));
+    var code = Babel.transform(parts.join(''), { presets: ['react'] }).code;
     eval(code);
   } catch (e) {
     document.getElementById('root').innerHTML = '<div style="color:#f87171;padding:24px;font-family:system-ui">Load error: '+e.message+'</div>';
