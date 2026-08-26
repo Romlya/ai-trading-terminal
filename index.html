@@ -6,27 +6,28 @@
 <title>AI Trading Terminal</title>
 </head>
 <body>
-<div id="boot" style="color:#94a3b8;padding:24px;font-family:system-ui">Загрузка терминала…</div>
+<div id="boot" style="color:#94a3b8;padding:24px;font-family:system-ui">Loading terminal...</div>
 <script>
 (async function(){
-  try {
-    var base = 'https://cdn.jsdelivr.net/gh/Romlya/ai-trading-terminal@main/';
-    var parts = await Promise.all([1,2,3].map(function(i){
-      return fetch(base+'app.gz.'+i+'.b64?t='+Date.now()).then(function(r){
-        if(!r.ok) throw new Error('chunk '+i+' '+r.status);
-        return r.text();
-      });
-    }));
-    var b64 = parts.join('');
-    var bin = Uint8Array.from(atob(b64), function(c){ return c.charCodeAt(0); });
-    var ds = new DecompressionStream('gzip');
-    var stream = new Response(bin).body.pipeThrough(ds);
-    var html = await new Response(stream).text();
-    document.open();
-    document.write(html);
-    document.close();
-  } catch (e) {
-    document.getElementById('boot').innerHTML = '<div style="color:#f87171">Load error: '+e.message+'</div>';
+  var CDN='https://cdn.jsdelivr.net/gh/Romlya/ai-trading-terminal@main/';
+  var RAW='https://raw.githubusercontent.com/Romlya/ai-trading-terminal/main/';
+  async function loadChunk(i,base){
+    var r=await fetch(base+'app.gz.'+i+'.b64?t='+Date.now());
+    if(!r.ok)throw new Error('chunk '+i+' '+r.status);
+    return r.text();
+  }
+  try{
+    var parts;
+    try{parts=await Promise.all([1,2,3].map(function(i){return loadChunk(i,CDN);}));}
+    catch(e){parts=await Promise.all([1,2,3].map(function(i){return loadChunk(i,RAW);}));}
+    var b64=parts.join('');
+    var bin=Uint8Array.from(atob(b64),function(c){return c.charCodeAt(0);});
+    var ds=new DecompressionStream('gzip');
+    var stream=new Response(bin).body.pipeThrough(ds);
+    var html=await new Response(stream).text();
+    document.open();document.write(html);document.close();
+  }catch(e){
+    document.getElementById('boot').innerHTML='<div style="color:#f87171">Load error: '+e.message+'</div>';
     console.error(e);
   }
 })();
