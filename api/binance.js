@@ -64,6 +64,12 @@ module.exports = async function handler(req, res) {
     const q = req.query || {};
     const action = body.action || q.action || 'account';
     const testnet = !!(body.testnet || q.testnet === '1' || q.testnet === 'true');
+
+    if (action === 'ping') {
+      res.status(200).json({ ok: true, testnet });
+      return;
+    }
+
     const { key, secret } = getKeys(req);
 
     if (action === 'account') {
@@ -131,11 +137,6 @@ module.exports = async function handler(req, res) {
         testnet
       );
       res.status(200).json({ ok: true, order: data });
-      return;
-    }
-
-    if (action === 'ping') {
-      res.status(200).json({ ok: true, testnet });
       return;
     }
 
