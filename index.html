@@ -4,5 +4,24 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
 <title>AI Trading Terminal</title>
-<!-- truncated for test -->
-</head><body><div id="root">loading fixed version...</div></body></html>
+</head>
+<body style="margin:0;background:#0a0a0f;color:#e5e7eb;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh">
+<div id="st">Загрузка…</div>
+<script>
+(async () => {
+  const st = document.getElementById('st');
+  try {
+    const urls = ['./app.p1.txt','./app.p2.txt','./app.p3.txt'];
+    const texts = await Promise.all(urls.map(u => fetch(u).then(r => { if(!r.ok) throw new Error(u+' '+r.status); return r.text(); })));
+    const html = texts.join('');
+    document.open();
+    document.write(html);
+    document.close();
+  } catch(e) {
+    st.textContent = 'Ошибка загрузки: ' + e.message;
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>
