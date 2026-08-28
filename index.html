@@ -109,7 +109,7 @@ function init(){
     crosshair:{mode:0}
   });
   series=chart.addCandlestickSeries({upColor:'#089981',downColor:'#f23645',borderUpColor:'#089981',borderDownColor:'#f23645',wickUpColor:'#089981',wickDownColor:'#f23645'});
-  volS=chart.addHistogramSeries({priceFormat:{type:'volume'},priceScaleId:'',scaleMargins:{top:.92,bottom:0}});
+  volS=chart.addHistogramSeries({priceFormat:{type:'volume'},priceScaleId:'',scaleMargins:{top:.94,bottom:0}});
   new ResizeObserver(()=>{
     chart.applyOptions({width:el.clientWidth,height:el.clientHeight});
     resize();draw();
@@ -135,7 +135,7 @@ function setData(){
   $('chg').textContent=(ch>=0?'+':'')+ch.toFixed(2)+'%';
   $('chg').className=ch>=0?'up':'dn';
   chart.timeScale().fitContent();
-  st(symbol+' '+tf+' · '+bars.length);
+  st(symbol+' '+tf+' · '+bars.length+' · v3');
   draw();
 }
 
