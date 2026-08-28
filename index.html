@@ -19,7 +19,7 @@ html,body{height:100%;overflow:hidden;font-family:system-ui,sans-serif;backgroun
 .chart-wrap{flex:1;position:relative;min-height:0}
 #chart{width:100%;height:100%}
 #ov,#vp{position:absolute;inset:0;pointer-events:none}
-#vp{left:auto;width:64px}
+#vp{left:auto;width:80px}
 .tools{display:flex;justify-content:center;gap:2px;padding:6px;height:46px;border-top:1px solid #e0e3eb}
 .tools button{border:none;background:0;width:40px;height:34px;border-radius:6px;font-size:10px;color:#787b86;cursor:pointer}
 .tools button.on{background:#e3f2fd;color:#2962ff}
@@ -135,54 +135,63 @@ function setData(){
   $('chg').textContent=(ch>=0?'+':'')+ch.toFixed(2)+'%';
   $('chg').className=ch>=0?'up':'dn';
   chart.timeScale().fitContent();
-  st(symbol+' '+tf+' · '+bars.length+' · v3');
+  st(symbol+' '+tf+' · '+bars.length+' · v4');
   draw();
 }
 
 function struct(d){
   const z=[],sw=[];
-  const lb=4;
+  const lb=5;
   for(let i=lb;i<d.length-lb;i++){
     let h=1,l=1;
     for(let k=1;k<=lb;k++){if(d[i-k].high>=d[i].high||d[i+k].high>d[i].high)h=0;if(d[i-k].low<=d[i].low||d[i+k].low<d[i].low)l=0;}
     if(h)sw.push({t:d[i].time,p:d[i].high,ty:'h'});
     if(l)sw.push({t:d[i].time,p:d[i].low,ty:'l'});
   }
-  for(let i=3;i<d.length-3;i++){
+  for(let i=4;i<d.length-4;i++){
     const c=d[i],body=Math.abs(c.close-c.open),rng=c.high-c.low;
-    if(rng<=0||body/rng<.55)continue;
-    const n=d.slice(i+1,i+5);
-    if(c.close>c.open&&n.filter(x=>x.close>c.high).length>=2)z.push({top:c.open,bot:c.low,t:c.time,ty:'d'});
-    if(c.close<c.open&&n.filter(x=>x.close<c.low).length>=2)z.push({top:c.high,bot:c.open,t:c.time,ty:'s'});
+    if(rng<=0||body/rng<.5)continue;
+    const n=d.slice(i+1,i+6);
+    if(c.close>c.open&&n.filter(x=>x.low>c.high).length>=2)
+      z.push({top:c.open,bot:c.low,t:c.time,ty:'d'});
+    if(c.close<c.open&&n.filter(x=>x.high<c.low).length>=2)
+      z.push({top:c.high,bot:c.open,t:c.time,ty:'s'});
   }
   for(let i=2;i<d.length;i++){
-    if(d[i-2].high<d[i].low)z.push({top:d[i].low,bot:d[i-2].high,t:d[i].time,ty:'fb'});
-    if(d[i-2].low>d[i].high)z.push({top:d[i-2].low,bot:d[i].high,t:d[i].time,ty:'fs'});
+    if(d[i-2].high<d[i].low)z.push({top:d[i].low,bot:d[i-2].high,t:d[i-2].time,ty:'fb'});
+    if(d[i-2].low>d[i].high)z.push({top:d[i-2].low,bot:d[i].high,t:d[i-2].time,ty:'fs'});
   }
-  const sl=d.slice(-80);
-  return{z:z.slice(-12),sw:sw.slice(-16),max:Math.max(...sl.map(x=>x.high)),min:Math.min(...sl.map(x=>x.low))};
+  const uniq=[];
+  for(const x of z.slice().reverse()){
+    if(uniq.length>=10)break;
+    if(!uniq.some(u=>Math.abs(u.top-x.top)/x.top<0.0015))uniq.push(x);
+  }
+  const sl=d.slice(-100);
+  return{z:uniq.reverse(),sw:sw.slice(-14),max:Math.max(...sl.map(x=>x.high)),min:Math.min(...sl.map(x=>x.low))};
 }
 
-function vp(d,bins=28){
-  const s=d.slice(-100);
+function vp(d,bins=32){
+  const s=d.slice(-120);
   let lo=Math.min(...s.map(x=>x.low)),hi=Math.max(...s.map(x=>x.high));
-  if(hi<=lo)return[];
+  if(hi<=lo)return{bins:[],poc:null};
   const step=(hi-lo)/bins;
   const h=Array.from({length:bins},(_,i)=>({p:lo+(i+.5)*step,v:0,b:0,s:0}));
   for(const c of s){
-    let i=Math.floor(((c.high+c.low)/2-lo)/step);
+    const mid=(c.high+c.low)/2;
+    let i=Math.floor((mid-lo)/step);
     if(i<0)i=0;if(i>=bins)i=bins-1;
     h[i].v+=c.volume;
     if(c.close>=c.open)h[i].b+=c.volume;else h[i].s+=c.volume;
   }
   const m=Math.max(...h.map(x=>x.v),1);
-  return h.map(x=>({...x,r:x.v/m}));
+  const poc=h.reduce((a,b)=>b.v>a.v?b:a,h[0]);
+  return{bins:h.map(x=>({...x,r:x.v/m})),poc};
 }
 
 function resize(){
   const w=$('chart').parentElement;
   $('ov').width=w.clientWidth;$('ov').height=w.clientHeight;
-  $('vp').width=64;$('vp').height=w.clientHeight;
+  $('vp').width=80;$('vp').height=w.clientHeight;
 }
 
 function draw(){
@@ -190,46 +199,63 @@ function draw(){
   const c=$('ov').getContext('2d'),w=$('ov').width,h=$('ov').height;
   c.clearRect(0,0,w,h);
   const ts=chart.timeScale();
+  const vpW=80;
   if(showS){
     const S=struct(bars);
     for(const z of S.z){
-      const x1=ts.timeToCoordinate(z.t),x2=w-70;
+      let x1=ts.timeToCoordinate(z.t);
+      if(x1==null)x1=0;
+      const x2=w-vpW-4;
       const y1=series.priceToCoordinate(z.top),y2=series.priceToCoordinate(z.bot);
-      if(x1==null||y1==null||y2==null)continue;
-      c.fillStyle=z.ty==='d'||z.ty==='fb'?'rgba(8,153,129,.18)':'rgba(242,54,69,.15)';
-      c.fillRect(x1,Math.min(y1,y2),Math.max(20,x2-x1),Math.abs(y2-y1));
-      c.strokeStyle=z.ty==='d'||z.ty==='fb'?'rgba(8,153,129,.35)':'rgba(242,54,69,.3)';
-      c.lineWidth=1;c.strokeRect(x1,Math.min(y1,y2),Math.max(20,x2-x1),Math.abs(y2-y1));
+      if(y1==null||y2==null)continue;
+      const top=Math.min(y1,y2),ht=Math.abs(y2-y1);
+      if(ht<2)continue;
+      c.fillStyle=z.ty==='d'||z.ty==='fb'?'rgba(8,153,129,.16)':'rgba(242,54,69,.14)';
+      c.fillRect(x1,top,Math.max(30,x2-x1),ht);
+      c.strokeStyle=z.ty==='d'||z.ty==='fb'?'rgba(8,153,129,.4)':'rgba(242,54,69,.35)';
+      c.lineWidth=1;c.strokeRect(x1,top,Math.max(30,x2-x1),ht);
     }
     for(const s of S.sw){
       const x=ts.timeToCoordinate(s.t),y=series.priceToCoordinate(s.p);
       if(x==null||y==null)continue;
       c.fillStyle=s.ty==='h'?'#f23645':'#089981';
       c.beginPath();
-      if(s.ty==='h'){c.moveTo(x,y-6);c.lineTo(x-4,y);c.lineTo(x+4,y);}
-      else{c.moveTo(x,y+6);c.lineTo(x-4,y);c.lineTo(x+4,y);}
+      if(s.ty==='h'){c.moveTo(x,y-7);c.lineTo(x-5,y);c.lineTo(x+5,y);}
+      else{c.moveTo(x,y+7);c.lineTo(x-5,y);c.lineTo(x+5,y);}
       c.fill();
     }
-    if(S.max){const y=series.priceToCoordinate(S.max);if(y!=null){c.fillStyle='rgba(242,54,69,.15)';c.fillRect(0,y-10,w-68,20);c.fillStyle='#f23645';c.font='bold 11px system-ui';c.fillText('Макс '+fmt(S.max),6,y+4);}}
-    if(S.min){const y=series.priceToCoordinate(S.min);if(y!=null){c.fillStyle='rgba(8,153,129,.13)';c.fillRect(0,y-10,w-68,20);c.fillStyle='#089981';c.font='bold 11px system-ui';c.fillText('Мин '+fmt(S.min),6,y+4);}}
+    if(S.max){const y=series.priceToCoordinate(S.max);if(y!=null){c.fillStyle='rgba(242,54,69,.14)';c.fillRect(0,y-11,w-vpW,22);c.fillStyle='#f23645';c.font='bold 11px system-ui';c.fillText('Макс '+fmt(S.max),8,y+4);}}
+    if(S.min){const y=series.priceToCoordinate(S.min);if(y!=null){c.fillStyle='rgba(8,153,129,.12)';c.fillRect(0,y-11,w-vpW,22);c.fillStyle='#089981';c.font='bold 11px system-ui';c.fillText('Мин '+fmt(S.min),8,y+4);}}
   }
   for(const o of orders){
     const y=series.priceToCoordinate(o.price);if(y==null)continue;
     c.strokeStyle=o.type==='tp'||o.side==='buy'?'#089981':'#f23645';
-    c.setLineDash(o.type==='limit'?[]:[3,2]);
-    c.beginPath();c.moveTo(0,y);c.lineTo(w-68,y);c.stroke();c.setLineDash([]);
-    c.fillStyle=c.strokeStyle;c.font='10px system-ui';
-    c.fillText((o.type==='sl'?'SL ':o.type==='tp'?'TP ':o.side==='buy'?'Buy ':'Sell ')+fmt(o.price),6,y-3);
+    c.setLineDash(o.type==='limit'?[]:[4,3]);
+    c.lineWidth=1.5;
+    c.beginPath();c.moveTo(0,y);c.lineTo(w-vpW,y);c.stroke();c.setLineDash([]);
+    c.fillStyle=c.strokeStyle;c.font='bold 10px system-ui';
+    c.fillText((o.type==='sl'?'SL ':o.type==='tp'?'TP ':o.side==='buy'?'Buy ':'Sell ')+fmt(o.price),8,y-4);
   }
-  const vc=$('vp').getContext('2d');vc.clearRect(0,0,64,h);
+  const vc=$('vp').getContext('2d');vc.clearRect(0,0,80,h);
   if(showV){
-    const H=vp(bars);
-    for(const b of H){
+    const V=vp(bars);
+    vc.fillStyle='rgba(240,243,250,.7)';
+    vc.fillRect(0,0,80,h);
+    vc.strokeStyle='#e0e3eb';vc.beginPath();vc.moveTo(0,0);vc.lineTo(0,h);vc.stroke();
+    for(const b of V.bins){
       const y=series.priceToCoordinate(b.p);if(y==null)continue;
-      const bw=Math.max(3,b.r*58),bh=7;
+      const bw=Math.max(2,b.r*72),bh=Math.max(4,h/V.bins.length*0.85);
       const buyW=bw*(b.b/(b.v||1));
-      vc.fillStyle='rgba(8,153,129,.65)';vc.fillRect(62-bw,y-bh/2,buyW,bh);
-      vc.fillStyle='rgba(242,54,69,.6)';vc.fillRect(62-bw+buyW,y-bh/2,bw-buyW,bh);
+      vc.fillStyle='rgba(8,153,129,.7)';vc.fillRect(78-bw,y-bh/2,buyW,bh);
+      vc.fillStyle='rgba(242,54,69,.65)';vc.fillRect(78-bw+buyW,y-bh/2,bw-buyW,bh);
+    }
+    if(V.poc){
+      const y=series.priceToCoordinate(V.poc.p);
+      if(y!=null){
+        vc.strokeStyle='#2962ff';vc.lineWidth=1.5;vc.setLineDash([3,2]);
+        vc.beginPath();vc.moveTo(0,y);vc.lineTo(80,y);vc.stroke();vc.setLineDash([]);
+        vc.fillStyle='#2962ff';vc.font='9px system-ui';vc.fillText('POC',4,y-3);
+      }
     }
   }
 }
