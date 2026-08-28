@@ -48,14 +48,10 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .chart-wrap{flex:1;position:relative;min-height:0;margin:8px 10px;border-radius:16px;background:var(--bg2);overflow:hidden;border:1px solid var(--line)}
 #chart{width:100%;height:100%}
 #ov{position:absolute;inset:0;pointer-events:none;z-index:5}
-#vp{position:absolute;top:0;bottom:0;right:52px;width:40px;pointer-events:none;z-index:6}
+#vp{position:absolute;top:8px;bottom:28px;right:58px;width:36px;pointer-events:none;z-index:6}
 .st{position:absolute;left:10px;bottom:8px;font-size:10px;color:var(--t3);background:rgba(0,0,0,.65);padding:4px 8px;border-radius:6px;z-index:10;display:flex;align-items:center;gap:5px}
 .conn{width:6px;height:6px;border-radius:50%;background:#555;flex-shrink:0}
 .conn.ok{background:var(--green)}.conn.bad{background:var(--red)}.conn.wait{background:var(--amber)}
-.dom{position:absolute;right:96px;top:10px;bottom:10px;width:56px;z-index:7;pointer-events:none;font-size:9px;display:flex;flex-direction:column;justify-content:center;gap:1px;opacity:.8;font-variant-numeric:tabular-nums}
-.dom div{display:flex;justify-content:space-between;padding:1px 3px;border-radius:3px}
-.dom .a{background:rgba(255,69,58,.1);color:#ff453a}
-.dom .b{background:rgba(48,209,88,.1);color:#30d158}
 .tools{display:flex;justify-content:center;gap:6px;padding:6px 12px 8px;flex-shrink:0}
 .tools button{border:1px solid var(--line);background:var(--elev);min-width:54px;height:36px;border-radius:10px;font-size:12px;font-weight:600;color:var(--t3);cursor:pointer}
 .tools button.on{background:rgba(10,132,255,.14);border-color:rgba(10,132,255,.4);color:var(--blue)}
@@ -143,7 +139,6 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
       <canvas id="ov"></canvas>
       <canvas id="vp"></canvas>
       <div class="st"><span class="conn wait" id="connDot"></span><span id="stTxt">…</span></div>
-      <div class="dom" id="dom"></div>
     </div>
     <div class="tools">
       <button class="on" id="tC">Cross</button>
