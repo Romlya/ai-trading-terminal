@@ -104,12 +104,12 @@ function init(){
   chart=LightweightCharts.createChart(el,{
     layout:{background:{color:'#fff'},textColor:'#131722',attributionLogo:false},
     grid:{vertLines:{color:'#f0f3fa'},horzLines:{color:'#f0f3fa'}},
-    rightPriceScale:{borderColor:'#e0e3eb',scaleMargins:{top:.06,bottom:.16}},
+    rightPriceScale:{borderColor:'#e0e3eb',scaleMargins:{top:.05,bottom:.12}},
     timeScale:{borderColor:'#e0e3eb',timeVisible:true},
     crosshair:{mode:0}
   });
   series=chart.addCandlestickSeries({upColor:'#089981',downColor:'#f23645',borderUpColor:'#089981',borderDownColor:'#f23645',wickUpColor:'#089981',wickDownColor:'#f23645'});
-  volS=chart.addHistogramSeries({priceFormat:{type:'volume'},priceScaleId:'',scaleMargins:{top:.85,bottom:0}});
+  volS=chart.addHistogramSeries({priceFormat:{type:'volume'},priceScaleId:'',scaleMargins:{top:.90,bottom:0}});
   new ResizeObserver(()=>{
     chart.applyOptions({width:el.clientWidth,height:el.clientHeight});
     resize();draw();
