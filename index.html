@@ -1,1 +1,26 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Terminal</title></head>
+<body style="margin:0;background:#000;color:#8e8e93;font-family:system-ui;display:flex;align-items:center;justify-content:center;height:100vh">
+<div id="st">Загрузка…</div>
+<script>
+(async()=>{
+  try{
+    const n=4;
+    let b64='';
+    for(let i=0;i<n;i++){
+      const r=await fetch('th'+i+'.b64?v=1');
+      if(!r.ok)throw new Error('th'+i);
+      b64+=await r.text();
+    }
+    const bin=Uint8Array.from(atob(b64.trim()),c=>c.charCodeAt(0));
+    const ds=new DecompressionStream('gzip');
+    const html=await new Response(new Response(bin).body.pipeThrough(ds)).text();
+    document.open();document.write(html);document.close();
+  }catch(e){
+    document.getElementById('st').textContent='Ошибка: '+e.message;
+    console.error(e);
+  }
+})();
+</script>
+</body></html>
