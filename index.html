@@ -1,1 +1,138 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Chart Terminal</title>
+<script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#000;color:#f5f5f7}
+#app{display:flex;flex-direction:column;height:100%}
+.hdr{padding:10px 12px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sym{font-weight:700;font-size:18px}
+.price{font-weight:600;font-size:16px;font-variant-numeric:tabular-nums}
+.chg{font-size:12px;font-weight:700;padding:3px 8px;border-radius:6px}
+.chg.up{color:#30d158;background:rgba(48,209,88,.12)}
+.chg.dn{color:#ff453a;background:rgba(255,69,58,.12)}
+.sp{flex:1}
+#chart{flex:1;min-height:0}
+.st{position:absolute;left:12px;bottom:70px;font-size:11px;color:#8e8e93;background:rgba(0,0,0,.7);padding:4px 8px;border-radius:6px;z-index:5}
+.qbar{display:flex;gap:8px;padding:8px 12px;padding-bottom:calc(8px + env(safe-area-inset-bottom))}
+.qbar button{flex:1;border:none;padding:14px;border-radius:12px;font-size:15px;font-weight:700;color:#fff;cursor:pointer}
+.buy{background:#30d158}.sell{background:#ff453a}
+.tfs{display:flex;gap:6px;padding:6px 12px;overflow-x:auto}
+.tfs button{border:1px solid rgba(255,255,255,.1);background:#121212;color:#8e8e93;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600}
+.tfs button.on{color:#0a84ff;border-color:rgba(10,132,255,.4);background:rgba(10,132,255,.12)}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="hdr">
+    <span class="sym" id="sym">BTCUSDT</span>
+    <span class="price" id="last">—</span>
+    <span class="chg" id="chg">—</span>
+    <span class="sp"></span>
+  </div>
+  <div class="tfs" id="tfs"></div>
+  <div id="chart" style="position:relative"></div>
+  <div class="st" id="st">загрузка…</div>
+  <div class="qbar">
+    <button class="buy" id="qBuy">BUY</button>
+    <button class="sell" id="qSell">SELL</button>
+  </div>
+</div>
+<script>
+const REST=['https://data-api.binance.vision','https://api.binance.com','https://api1.binance.com'];
+const WS=['wss://data-stream.binance.vision','wss://stream.binance.com:9443'];
+const TFS=['1m','5m','15m','1h','4h','1d'];
+let symbol='BTCUSDT',tf='15m',bars=[],chart,series,ws;
+const $=id=>document.getElementById(id);
+const fmt=v=>v==null?'—':v>=1000?v.toFixed(1):v>=1?v.toFixed(2):v.toFixed(5);
+function st(t){$('st').textContent=t}
+async function load(){
+  st('загрузка…');
+  for(const b of REST){
+    try{
+      const r=await fetch(b+'/api/v3/klines?symbol='+symbol+'&interval='+tf+'&limit=200',{cache:'no-store'});
+      if(!r.ok)continue;
+      const raw=await r.json();
+      if(!Array.isArray(raw)||!raw.length)continue;
+      bars=raw.map(k=>({time:k[0]/1000|0,open:+k[1],high:+k[2],low:+k[3],close:+k[4],volume:+k[5]}));
+      return true;
+    }catch(e){console.warn(e)}
+  }
+  st('ошибка сети');
+  return false;
+}
+function wsConn(){
+  if(ws)try{ws.close()}catch(e){}
+  const s=symbol.toLowerCase()+'@kline_'+tf;
+  let i=0;
+  (function c(){
+    if(i>=WS.length)return;
+    try{
+      ws=new WebSocket(WS[i++]+'/ws/'+s);
+      ws.onopen=()=>st(symbol+' · '+tf+' · live');
+      ws.onmessage=e=>{
+        try{
+          const k=JSON.parse(e.data).k;
+          const bar={time:k.t/1000|0,open:+k.o,high:+k.h,low:+k.l,close:+k.c,volume:+k.v};
+          if(series)series.update(bar);
+          const L=bars[bars.length-1];
+          if(L&&L.time===bar.time)bars[bars.length-1]=bar;else bars.push(bar);
+          $('last').textContent=fmt(bar.close);
+        }catch(x){}
+      };
+      ws.onerror=()=>{try{ws.close()}catch(x){}c()};
+    }catch(x){c()}
+  })();
+}
+function init(){
+  const el=$('chart');
+  chart=LightweightCharts.createChart(el,{
+    layout:{background:{color:'#000'},textColor:'#555'},
+    grid:{vertLines:{color:'#141414'},horzLines:{color:'#141414'}},
+    rightPriceScale:{borderColor:'#1a1a1a',scaleMargins:{top:0.02,bottom:0.05}},
+    timeScale:{borderColor:'#1a1a1a',timeVisible:true},
+    crosshair:{mode:0}
+  });
+  series=chart.addCandlestickSeries({
+    upColor:'#30d158',downColor:'#ff453a',
+    borderUpColor:'#30d158',borderDownColor:'#ff453a',
+    wickUpColor:'#30d158',wickDownColor:'#ff453a'
+  });
+  new ResizeObserver(()=>{
+    chart.applyOptions({width:el.clientWidth,height:el.clientHeight});
+  }).observe(el);
+  chart.applyOptions({width:el.clientWidth,height:el.clientHeight});
+}
+function setData(){
+  series.setData(bars.map(c=>({time:c.time,open:c.open,high:c.high,low:c.low,close:c.close})));
+  const last=bars[bars.length-1].close;
+  $('last').textContent=fmt(last);
+  const o=bars[0].open,ch=((last-o)/o)*100;
+  const el=$('chg');
+  el.textContent=(ch>=0?'+':'')+ch.toFixed(2)+'%';
+  el.className='chg '+(ch>=0?'up':'dn');
+  chart.timeScale().fitContent();
+  st(symbol+' · '+tf);
+}
+function ui(){
+  const box=$('tfs');box.innerHTML='';
+  TFS.forEach(t=>{
+    const b=document.createElement('button');
+    b.textContent=t;if(t===tf)b.className='on';
+    b.onclick=()=>{tf=t;ui();go()};
+    box.appendChild(b);
+  });
+  $('qBuy').onclick=()=>st('BUY paper @ '+$('last').textContent);
+  $('qSell').onclick=()=>st('SELL paper @ '+$('last').textContent);
+}
+async function go(){
+  if(await load()){setData();wsConn()}
+}
+init();ui();go();
+</script>
+</body>
+</html>
