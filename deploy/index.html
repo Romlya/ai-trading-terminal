@@ -9,10 +9,10 @@
 <script>
 (async()=>{
   try{
-    const base='https://cdn.jsdelivr.net/gh/Romlya/ai-trading-terminal@1ebcba36b861ee292329633ac602d7c4f7b07b10/deploy/';
+    const base='https://cdn.jsdelivr.net/gh/Romlya/ai-trading-terminal@80a109ae476b6a047d5f75e5795978acf1d31cc8/deploy/';
     let b64='';
     for(let i=0;i<16;i++){
-      const n='s'+String(i).padStart(2,'0');
+      const n='f'+String(i).padStart(2,'0');
       const r=await fetch(base+n+'.txt');
       if(!r.ok) throw new Error(n+' '+r.status);
       b64+=(await r.text()).trim();
