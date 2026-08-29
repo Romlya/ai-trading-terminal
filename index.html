@@ -1,12 +1,24 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/><title>T</title></head>
-<body style="margin:0;background:#000;color:#666;font:14px system-ui;display:flex;align-items:center;justify-content:center;height:100vh">Загрузка…
+<!DOCTYPE html>
+<html lang="ru"><head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Terminal</title>
+</head>
+<body style="margin:0;background:#000;color:#888;font:14px system-ui;display:flex;align-items:center;justify-content:center;height:100vh">
+Загрузка…
 <script>
 (async()=>{
-const N=["c0.b64", "c1.b64", "c2.b64", "c3.b64", "c4.b64"];
-let b='';
-for(const n of N){const r=await fetch(n+'?v=5');if(!r.ok)throw new Error(n);b+=await r.text()}
-const bin=Uint8Array.from(atob(b),c=>c.charCodeAt(0));
-const html=await new Response(new Response(bin).body.pipeThrough(new DecompressionStream('gzip'))).text();
-document.open();document.write(html);document.close();
-})().catch(e=>document.body.textContent='Err: '+e);
-</script></body></html>
+  const names=["d0.b64", "d1.b64", "d2.b64", "d3.b64", "d4.b64", "d5.b64", "d6.b64", "d7.b64", "d8.b64", "d9.b64"];
+  let b64='';
+  for(const n of names){
+    const r=await fetch(n+'?v=10');
+    if(!r.ok) throw new Error('fail '+n);
+    b64+=await r.text();
+  }
+  const bin=Uint8Array.from(atob(b64.trim()), c=>c.charCodeAt(0));
+  const stream=new Response(bin).body.pipeThrough(new DecompressionStream('gzip'));
+  const html=await new Response(stream).text();
+  document.open(); document.write(html); document.close();
+})().catch(e=>{ document.body.textContent='Ошибка: '+e.message; });
+</script>
+</body></html>
