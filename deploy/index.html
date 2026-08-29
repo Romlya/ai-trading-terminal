@@ -10,7 +10,7 @@
 (async()=>{
   try{
     const base='https://cdn.jsdelivr.net/gh/Romlya/ai-trading-terminal@main/deploy/';
-    const names=['p0a','p0b','p1a','p1b','p2a','p2b','p3a','p3b'];
+    const names=['p0a','p0b','p1a','p1bA','p1bB','p2a','p2b','p3a','p3b'];
     let b64='';
     for(const n of names){
       const r=await fetch(base+n+'.txt');
