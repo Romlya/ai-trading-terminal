@@ -10,10 +10,11 @@
 (async()=>{
   try{
     const base='https://raw.githubusercontent.com/Romlya/ai-trading-terminal/main/deploy/';
+    const names=['p0a','p0b','p1a','p1b','p2a','p2b','p3a','p3b'];
     let b64='';
-    for(let i=0;i<4;i++){
-      const r=await fetch(base+'p'+i+'.txt?v=15');
-      if(!r.ok) throw new Error('p'+i+' '+r.status);
+    for(const n of names){
+      const r=await fetch(base+n+'.txt?v=16');
+      if(!r.ok) throw new Error(n+' '+r.status);
       b64+=(await r.text()).trim();
     }
     const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
