@@ -52,6 +52,13 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .st{position:absolute;left:10px;bottom:8px;font-size:10px;color:var(--t3);background:rgba(0,0,0,.65);padding:4px 8px;border-radius:6px;z-index:10;display:flex;align-items:center;gap:5px}
 .conn{width:6px;height:6px;border-radius:50%;background:#555;flex-shrink:0}
 .conn.ok{background:var(--green)}.conn.bad{background:var(--red)}.conn.wait{background:var(--amber)}
+.qbar{display:flex;align-items:center;gap:6px;padding:4px 12px 2px;flex-shrink:0}
+.qsz{display:flex;gap:4px;flex:1;overflow-x:auto}
+.qsz button{border:1px solid var(--line);background:var(--elev);padding:7px 10px;border-radius:8px;font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;white-space:nowrap}
+.qsz button.on{background:var(--elev2);color:var(--t1);border-color:var(--line2)}
+.qbuy,.qsell{border:none;padding:9px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;color:#fff;min-width:64px}
+.qbuy{background:var(--green)}.qsell{background:var(--red)}
+.qbe{border:1px solid var(--line);background:var(--elev);padding:9px 12px;border-radius:10px;font-size:12px;font-weight:700;color:var(--amber);cursor:pointer}
 .tools{display:flex;justify-content:center;gap:6px;padding:6px 12px 8px;flex-shrink:0}
 .tools button{border:1px solid var(--line);background:var(--elev);min-width:54px;height:36px;border-radius:10px;font-size:12px;font-weight:600;color:var(--t3);cursor:pointer}
 .tools button.on{background:rgba(10,132,255,.14);border-color:rgba(10,132,255,.4);color:var(--blue)}
@@ -105,6 +112,11 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 .search-item:active{background:var(--elev2)}
 .search-item .sub{font-size:12px;color:var(--t3)}
 .search-hint{font-size:12px;color:var(--t3);padding:4px 4px 12px;font-weight:500}
+.ctx{display:none;position:fixed;z-index:150;background:var(--elev);border:1px solid var(--line2);border-radius:14px;padding:6px;min-width:160px;box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.ctx.on{display:block}
+.ctx button{display:block;width:100%;text-align:left;border:none;background:transparent;color:var(--t1);padding:12px 14px;font-size:14px;font-weight:600;border-radius:10px;cursor:pointer}
+.ctx button:active{background:var(--elev2)}
+.ctx .sub{font-size:11px;color:var(--t3);font-weight:500;margin-top:2px}
 .toast{position:fixed;left:50%;bottom:76px;transform:translateX(-50%) translateY(12px);background:var(--elev2);color:var(--t1);padding:11px 18px;border-radius:14px;font-size:13px;font-weight:600;z-index:200;opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;border:1px solid var(--line2);max-width:88%;text-align:center}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
@@ -139,6 +151,17 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
       <canvas id="ov"></canvas>
       <canvas id="vp"></canvas>
       <div class="st"><span class="conn wait" id="connDot"></span><span id="stTxt">…</span></div>
+    </div>
+    <div class="qbar" id="qbar">
+      <div class="qsz" id="qsz">
+        <button data-q="0.01" class="on">0.01</button>
+        <button data-q="0.05">0.05</button>
+        <button data-q="0.1">0.1</button>
+        <button data-q="0.5">0.5</button>
+      </div>
+      <button class="qbuy" id="qBuy">BUY</button>
+      <button class="qsell" id="qSell">SELL</button>
+      <button class="qbe" id="qBE" title="Break-even">BE</button>
     </div>
     <div class="tools">
       <button class="on" id="tC">Cross</button>
@@ -180,7 +203,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
       <div class="field"><label>Объём</label><input id="trQty" type="text" value="0.01" inputmode="decimal"/></div>
       <div class="field"><label>Цена</label><input id="trPrice" type="text" placeholder="Клик по графику" inputmode="decimal"/></div>
       <div class="sides"><button class="buy" id="trBuy">Купить</button><button class="sell" id="trSell">Продать</button></div>
-      <p class="note">Ордер: зажми линию и тяни пальцем. Крестик или тап по линии — отмена.</p>
+      <p class="note">BUY/SELL — маркет. Long-press на графике — лимит/стоп. Тяни линии ордеров. BE — стоп в безубыток. Авто SL/TP при входе.</p>
       <div class="orders-box" id="trOrders"></div>
     </div>
   </div>
@@ -191,6 +214,7 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
     <button data-p="trade"><svg viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Торговля</button>
   </div>
 </div>
+<div class="ctx" id="ctx"></div>
 <div class="toast" id="toast"></div>
 <div class="search-ov" id="searchOv">
   <div class="search-box">
