@@ -13,8 +13,25 @@
 (async()=>{
   const el=document.getElementById('s');
   try{
-    const parts=await Promise.all([0,1,2,3].map(i=>fetch('./q'+i+'.b64?v=16',{cache:'no-store'}).then(r=>{if(!r.ok)throw new Error('q'+i);return r.text()})));
-    const b64=parts.join('').replace(/\s/g,'');
+    // Prefer self-hosted raw github then jsdelivr
+    const bases=[
+      'https://cdn.jsdelivr.net/gh/Romlya/ai-trading-terminal@2ea76823165b96cd7140b545b3c601cd181454aa/deploy/',
+      'https://raw.githubusercontent.com/Romlya/ai-trading-terminal/2ea76823165b96cd7140b545b3c601cd181454aa/deploy/'
+    ];
+    let b64='', lastErr;
+    for(const base of bases){
+      try{
+        b64='';
+        for(let i=0;i<16;i++){
+          const n='f'+String(i).padStart(2,'0');
+          const r=await fetch(base+n+'.txt',{cache:'no-store'});
+          if(!r.ok)throw new Error(n+' '+r.status);
+          b64+=(await r.text()).trim();
+        }
+        lastErr=null;break;
+      }catch(e){lastErr=e}
+    }
+    if(lastErr)throw lastErr;
     const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
     const ds=new DecompressionStream('gzip');
     const stream=new Blob([bin]).stream().pipeThrough(ds);
