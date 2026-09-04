@@ -13,4 +13,35 @@
 (async()=>{
   const el=document.getElementById('s');
   try{
-    const parts=["H4sIAAAAAAACA9y9/XMjyXEg+vv8FT1ciUAPGiAAEhwOME1qhsPRzHlGQw25s9ZNjHUNoEG02EBjuhsguSQjVquzz362T2c/XVhxfv6QL8LvhxcvbiVbp9VKWkXYvzvIf0F/ycvM+uiq/gDA1Ui2386S7K6uj6ysrKzMrKys+7cfvdg9/Mb+njGMR/72rfv4x/Cd8ZG9Ek5XMMF1+vBn5MaO0Rs6YeTG9sr7h4+rWytrIn3sjFx7Zea5J5MgjFeMXjCO3THkO/H68dDuuzOv51bpxfLGXuw5fjXqOb5rN6yRc+qNpiP5Po3ckF6cLryPA0tUWx14sd0LZm6YbjgeuiO32gv8IFTafq9O/6UzO5OJ71ZHQdeDPydutwoJ1Z4zweaU0mdutFTJKHbiaVTtOgB0fKZV0fWd3nE1Dp1x5E97kJSu8IsAMQjCkRNX+27s9mIvGCu5Y9d3J8NgjFijYrEX++72oRuOvLHj319j77fuR73Qm8RGFPbslWEcT6L22tp0PDk+qvWC0ZrvHQ3jExd/V3HA4+grG7Vmrb7W96I452sNUDDuOz40XJuEQX9KcNW+Fa1s319jTWGbiJztW+0wCOLzW4ZRrXaP2jhEHXxqwmMP/8Eb9GLWfq/RxH/8FT43evDP7VBJ3xu77fCo65SbrZYlfmr1u2aHfWzmfG00TVY6brTfG7Tg313IHUPVW+6We28dX9bb722uw79NlvModN1x+731er/R2oLvoduHooON1rqDUPtTF8B2tjYGA3h1Rl03xM/9zbrDyoftxsbkFL5FzsBtu+NZGR+qTug6VW8ME6naDeI4GFn1ySkAd3nrznk3OK1G3ofe+KjdDcI+TAVI6Yyc8Mgbt+udidPv4zfAGlDNsRdXY2dSHcJo+GxEcA60ieQm0Mw4vryFE9rqBv2z8yGNWrtRr3+5kzz3Z8MOTqqBH5y0h16/7447AyCp6sAZef5Zu8rIPjqLYndkPQT0Hj93egf0+hjyWSsHj439MDAO3dN4Bd7co8A13n+6Yr0MoHuBFQEwVZjU3qDThQlxFAbTcb89c8IyjrzZYTCz97hhyp4RENEI6GWIXXbGyDY8J3L7nTiY9oZVh
+    const bases=[
+      './deploy/',
+      'https://cdn.jsdelivr.net/gh/Romlya/ai-trading-terminal@main/deploy/',
+      'https://raw.githubusercontent.com/Romlya/ai-trading-terminal/main/deploy/'
+    ];
+    let b64='', err;
+    for(const base of bases){
+      try{
+        b64='';
+        for(let i=0;i<4;i++){
+          const r=await fetch(base+'p'+i+'.txt',{cache:'no-store'});
+          if(!r.ok)throw new Error('p'+i+' '+r.status);
+          b64+=(await r.text()).trim();
+        }
+        err=null;break;
+      }catch(e){err=e}
+    }
+    if(err)throw err;
+    const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+    const ds=new DecompressionStream('gzip');
+    const stream=new Blob([bin]).stream().pipeThrough(ds);
+    const html=await new Response(stream).text();
+    if(html.indexOf('updateDecisionHud')<0)throw new Error('bad app payload');
+    document.open();document.write(html);document.close();
+  }catch(e){
+    el.textContent='Ошибка: '+(e&&e.message?e.message:e);
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>
