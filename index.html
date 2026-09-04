@@ -18,25 +18,20 @@
       'https://cdn.jsdelivr.net/gh/Romlya/ai-trading-terminal@main/deploy/',
       'https://raw.githubusercontent.com/Romlya/ai-trading-terminal/main/deploy/'
     ];
-    let b64='', err;
+    let html='', err;
     for(const base of bases){
       try{
-        b64='';
-        for(let i=0;i<16;i++){
-          const n = String(i).padStart(2,'0');
-          const r=await fetch(base+'f'+n+'.txt',{cache:'no-store'});
-          if(!r.ok)throw new Error('f'+n+' '+r.status);
-          b64+=(await r.text()).trim();
+        html='';
+        for(let i=0;i<10;i++){
+          const r=await fetch(base+'idx'+i+'.txt',{cache:'no-store'});
+          if(!r.ok)throw new Error('idx'+i+' '+r.status);
+          html+=await r.text();
         }
         err=null;break;
       }catch(e){err=e}
     }
     if(err)throw err;
-    const bin=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
-    const ds=new DecompressionStream('gzip');
-    const stream=new Blob([bin]).stream().pipeThrough(ds);
-    const html=await new Response(stream).text();
-    if(html.indexOf('updateDecisionHud')<0)throw new Error('bad app payload');
+    if(html.indexOf('updateDecisionHud')<0)throw new Error('bad app');
     document.open();document.write(html);document.close();
   }catch(e){
     el.textContent='Ошибка: '+(e&&e.message?e.message:e);
